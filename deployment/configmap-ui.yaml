@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  config.json: |
+    {
+      "endpoint": "https://cd.artbit.com.pl"
+    }
+kind: ConfigMap
+metadata:
+  name: alerta-ui-cm
+  labels:
+    app: alerta-ui

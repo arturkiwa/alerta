@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: alerta-ui-service
+  labels:
+    app: alerta-ui
+spec:
+  type: ClusterIP
+  ports:
+   - port: 8087
+  selector:
+   app: alerta-ui

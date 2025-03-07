@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alerta-ui
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: alerta-ui
+  template:
+    metadata:
+      name: alerta-ui
+      labels:
+        app: alerta-ui
+    spec:
+      serviceAccountName: alertasa
+      imagePullSecrets:
+      - name: privatecred
+      containers:
+      - name: alerta-ui-container
+        image: cr.artbit.com.pl/mydocker/alerta-ui:latest
+        imagePullPolicy: Always
+        ports:
+        - name: alerta-ui-port
+          containerPort: 8087
+        env:
+          - name: ADMIN_USERS
+            value: alerta_admin
+          - name: ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: alerta-alerta-web
+                key: alerta-admin-password
+          - name: ADMIN_KEY
+            valueFrom:
+              secretKeyRef:
+                name: alerta-alerta-web
+                key: alerta-admin-key
+          - name: ALERTA_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: alerta-alerta-web
+                key: alerta-api-key
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8087
+          initialDelaySeconds: 10
+          timeoutSeconds: 2
+          periodSeconds: 5
+          failureThreshold: 2
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8087
+          initialDelaySeconds: 5
+          timeoutSeconds: 3
+          periodSeconds: 10
+          failureThreshold: 3
+        resources:
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+        volumeMounts:
+          - name: alerta-conf
+            mountPath: /app/config.json
+            subPath: config.json
+      volumes:
+        - name: alerta-conf
+          configMap:
+            name: alerta-ui-cm

@@ -1,0 +1,24 @@
+apiVersion: v1
+data:
+  alertad.conf: |
+    ACTIONS = ['createIssue', 'updateIssue']
+    ADMIN_USERS = ['admin@example.com']
+    AUTH_REQUIRED = True
+    CUSTOMER_VIEWS = True
+    SIGNUP_ENABLED = False
+    AUTH_PROVIDER = "basic"
+    ALLOWED_ENVIRONMENTS = ['Production', 'Development', 'Testing', 'Demo']
+    COLUMNS = ['severity', 'status', 'lastReceiveTime', 'environment', 'service', 'resource', 'event', 'value', 'text']
+    LOG_LEVEL = 'INFO'
+    DEBUG = False
+    ALERTMANAGER_API_URL = "https://alertmanager.artbit.com.pl"
+    BASE_URL = "https://cd.artbit.com.pl"
+    LOG_HANDLERS = ['console']
+    DATABASE_URL = "postgresql://alerta:PG_ALERTA_PASSWORD@alerta-postgresql:5432/alerta"
+    PLUGINS = ['prometheus', 'enhance', 'normalise', 'reject']
+    CORS_ORIGINS = ['https://alerta.artbit.com.pl','https://cd.artbit.com.pl','http://localhost','http://localhost:8000','http://alerta-service.alerta.svc.cluster.local:8080']
+kind: ConfigMap
+metadata:
+  name: alerta-cm
+  labels:
+    app: alerta-app

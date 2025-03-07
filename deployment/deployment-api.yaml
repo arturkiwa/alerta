@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alerta-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alerta-app
+  template:
+    metadata:
+      name: alerta-app
+      labels:
+        app: alerta-app
+    spec:
+      serviceAccountName: alertasa
+      imagePullSecrets:
+      - name: privatecred
+      containers:
+      - name: alerta-app-container
+        image: cr.artbit.com.pl/mydocker/alerta:latest
+        imagePullPolicy: Always
+        ports:
+        - name: alerta-app-port
+          containerPort: 8080
+        env:
+          - name: ALERTA_SVR_CONF_FILE
+            value: /app/alertad.conf
+          - name: ADMIN_USERS
+            value: alerta_admin
+          - name: ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: alerta-alerta-web
+                key: alerta-admin-password
+          - name: ADMIN_KEY
+            valueFrom:
+              secretKeyRef:
+                name: alerta-alerta-web
+                key: alerta-admin-key
+          - name: ALERTA_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: alerta-alerta-web
+                key: alerta-api-key
+          - name: INSTALL_PLUGINS
+            value: prometheus,normalise,enhance,blackout,reject
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 25
+          timeoutSeconds: 2
+          periodSeconds: 5
+          failureThreshold: 2
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 20
+          timeoutSeconds: 3
+          periodSeconds: 10
+          failureThreshold: 3
+        resources:
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+        volumeMounts:
+          - name: alerta-config
+            mountPath: /app/alertad.conf
+            subPath: alertad.conf
+      volumes:
+        - name: alerta-config
+          configMap:
+            name: alerta-cm

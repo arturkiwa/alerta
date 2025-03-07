@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: alerta-api-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: cd.artbit.com.pl
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: alerta-service
+            port:
+              number: 8080
